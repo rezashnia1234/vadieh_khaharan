@@ -5,7 +5,7 @@
         version   = "1.10" >
 		
 		
-    <name>برادران</name>
+    <name>خواهران</name>
     <description>ودیعه الحسین (علیه السلام)</description>
     <author href="http://smgroup.ir" email="info@smgroup.ir">Sorush Mehr Rezvan</author>
     <preference name="permissions"                value="none"/>
