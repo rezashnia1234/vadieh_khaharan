@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="x-ua-compatible" content="IE=edge" />
+
+    <title>بسم الله الرحمن الرحیم</title>
+
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <link rel="stylesheet" type="text/css" href="css/responsive.css">
+    <link rel="stylesheet" type="text/css" href="css/core.css">
+    <link rel="stylesheet" type="text/css" href="css/colors.css">
+    <link rel="stylesheet" type="text/css" href="css/fontiran.css">
+    <link rel="stylesheet" type="text/css" href="css/custom.css">
+
+	<script src="js/jquery-1.11.3.min.js"></script>
+	<script src="js/console.log.js"></script>
+    <script src="phonegap.js"></script>
+    <script src="js/fastclick.js"></script>
+    <script src="js/persian_number_to_english.js"></script>
+    <script src="js/index.js"></script>
+	<script>
+		function init() {		
+			console.log('SMGROUP ::::::::::::::::::::::::::::::::::::    start init()');
+			document.addEventListener("deviceready", onDeviceReady, false);
+		}
+
+
+
+		function onDeviceReady() {
+			var networkState = navigator.connection.type;
+			//UserAgent.set("A786-110-A");
+			FastClick.attach(document.body);
+			if ( device.platform == 'Android' ){//Android,iOS,win7=WinCE,win8=Win32NT
+				document.addEventListener("backbutton", go_back_index, false);
+			}
+			
+			if(window.localStorage.getItem('URL') == null)
+				window.localStorage.setItem('URL',"http://vadieh.net/registration/mobile-app/");
+			if(window.localStorage.getItem('URL_image') == null)
+				window.localStorage.setItem('URL_image',"http://vadieh.net/registration/");
+
+		}
+
+		$(window).load(function() {		
+			setTimeout(function(){
+				$(".mypreload").css("display","none");
+			}, 300);
+		});
+
+		function go_back_index() {
+			StartScan();
+			/*
+			navigator.notification.confirm(
+				'آیا تمایل به خروج از برنامه را دارید؟',	// message
+				onExitConfirm,								// callback
+				'توجه',										// title
+				['بله','خیر']								// buttonName
+			);
+			*/
+		}
+		function onExitConfirm(buttonIndex) {
+			if(buttonIndex==1)
+			{
+				navigator.app.exitApp();
+			}
+			else
+			{
+				
+			}
+		}
+		function StartScan() {
+			$(".mypreload").css("display","block");
+		   cordova.plugins.barcodeScanner.scan(
+			  function (result) {
+					//alert("Result: " + result.text);
+					get_user_data(result.text,"");
+			  },
+			  function (error) {
+				  //alert("Scanning failed: " + error);
+				  $(".mypreload").css("display","none");
+			  },
+			  {
+				  preferFrontCamera : false, // iOS and Android
+				  showFlipCameraButton : false, // iOS and Android
+				  showTorchButton : true, // iOS and Android
+				  torchOn: true, // Android, launch with the torch switched on (if available)
+				  prompt : "Place a barcode inside the scan area", // Android
+				  resultDisplayDuration: 0, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+				  //formats : "QR_CODE,PDF_417", // default: all but PDF_417 and RSS_EXPANDED
+				  //orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
+				  disableAnimations : false, // iOS
+				  disableSuccessBeep: false // iOS
+			  }
+		   );
+		}
+		
+		function keyboard() {
+			navigator.notification.prompt(
+				'لطفا کدملی را وارد نمایید',	// message
+				onPrompt,						// callback to invoke
+				'ثبت دستی اطلاعات',				// title
+				['تائید','لغو'],				// buttonLabels
+				''								// defaultText
+			);
+			function onPrompt(results) {
+				//alert("You selected button number " + results.buttonIndex + " and entered " + results.input1);
+				if(results.buttonIndex==1 && results.input1 != "")
+				{
+					get_user_data("",results.input1);
+				}
+			}
+		}
+
+		function get_user_data(id,KodeMeli) {
+			//var networkState = navigator.connection.type;
+			if ( false && networkState == Connection.NONE) {
+				navigator.notification.alert(
+					'شما برای مشاهده این صفحه نیاز به اینترنت دارید',  // message
+					alertDismissed,			// callback
+					'اخطار',				// title
+					'تائید'					// buttonName
+				);
+			}
+			else
+			{
+				navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || navigator.msVibrate;
+				if (navigator.vibrate) {
+					navigator.vibrate(100);
+				}
+				$(".mypreload").css("display","block");
+				var URL = window.localStorage.getItem('URL') . "/out.php";
+				var URL_image = window.localStorage.getItem('URL_image');
+				$.ajax({
+						url: URL,
+						type: "GET",
+						data: {
+							app: "true",
+							act: "baresi",
+							id: id,
+							KodeMeli: KodeMeli
+						},
+						async: true,
+						success : function(text)
+						{
+							text = text.replace('<img src="../','<img src="' + URL_image);
+							text = text.replace('<img src="../','<img src="' + URL_image);
+							$('html, body').animate({
+								scrollTop: 0
+							}, 0);
+							$('#show_result').html(text);
+							$(".mypreload").css("display","none");
+						},
+						error: function(jqXHR, exception) {
+							$(".mypreload").css("display","none");
+							if (jqXHR.status === 0) {
+								$('#show_result').html('در اتصال شما به اینترنت مشکلی به وجود آمده است ، امکان نمایش محتوا وجود ندارد');
+							} else if (jqXHR.status == 404) {
+								$('#show_result').html('صفحه مورد نظر شما یافت نشد');
+							} else if (jqXHR.status == 500) {
+								$('#show_result').html('Internal Server Error [500].');
+							} else if (exception === 'parsererror') {
+								$('#show_result').html('Requested JSON parse failed.');
+							} else if (exception === 'timeout') {
+								$('#show_result').html('Time out error.');
+							} else if (exception === 'abort') {
+								$('#show_result').html('Ajax request aborted.');
+							} else {
+								$('#show_result').html('Uncaught Error.\n' + jqXHR.responseText);
+							}
+						},
+				});
+			}
+		}
+	</script>	
+
+		
+		
+		
+<style>
+.besmelah {
+    width: 100%;
+	height:30px;
+    text-align: center;
+    background-color: #eef9fc;
+    color: #11a8cf;
+	position:fixed;
+	top:0;
+	left:0;
+	line-height:30px;
+	z-index: 1013;
+}
+.start_scan {
+    width: 100%;
+	height:30px;
+    text-align: center;
+    background-color: #11a8cf;
+    color: #eef9fc;
+	position:fixed;
+	top:30px;
+	left:0;
+	line-height:30px;
+	z-index: 1013;
+}
+.start_scan.bottom_fix{
+	bottom:0;
+	top:auto;
+	height:60px;
+	line-height:60px;
+}
+a.reload_btn{
+	display:block;
+	position:fixed;
+	top:0;
+	right:0;
+	height:30px;
+	width:50px;
+	cursor:pointer;
+	z-index:1014;
+	padding-top:2px;
+	padding-right:2px;
+}
+a.reload_btn img {
+    width: 26px;
+    border-radius: 26px;
+    border: 1px solid rgba(17,168,207,0.3);
+    box-sizing: border-box;
+}
+a.amar_btn{
+	display:block;
+	position:fixed;
+	top:0;
+	left:0;
+	height:30px;
+	width:50px;
+	cursor:pointer;
+	z-index:1014;
+	padding-top:2px;
+	padding-left:2px;
+	text-align:left;
+}
+a.amar_btn img {
+    width: 26px;
+    border-radius: 26px;
+    border: 1px solid rgba(17,168,207,0.3);
+    box-sizing: border-box;
+}
+.manual_data.bottom_fix{
+	display:block;
+    width: 60px;
+	height:60px;
+    text-align: center;
+    background-color: #eef9fc;
+    color: #11a8cf;
+	position:fixed;
+	bottom:-1px;
+	left:0;
+	line-height:60px;
+	z-index: 1014;
+}
+.manual_data.bottom_fix img {
+    width: 100%;
+    box-sizing: border-box;
+    border-right: 10px solid transparent;
+    border-left: 10px solid transparent;
+	border-top: 0px solid transparent;
+}
+.change_page{
+    width: 100%;
+	height:30px;
+    text-align: center;
+    background-color: #11a8cf;
+    color: #eef9fc;
+	position:fixed;
+	top:30px;
+	left:0;
+	line-height:30px;
+	z-index: 1013;
+}
+.change_page .change_page_baresi,.change_page .change_page_vorud,.change_page .change_page_khoruj{
+	display:block;
+	position:relative;
+	width:33.3%;
+	float:right;
+	box-sizing:border-box;
+	height:60px;
+	margin-top:-30px;
+	padding-top:30px;
+	text-align:center;
+	color: #eef9fc;
+}
+a.change_page_vorud::before {
+    content: ".";
+    display: block;
+    position: absolute;
+    height: 30px;
+    background-color: rgba(238,249,252,0.9);
+    color: transparent;
+    font-size: 0;
+    width: 1px;
+    right: 0;
+    bottom: 0;
+}
+a.change_page_vorud::after {
+    content: ".";
+    display: block;
+    position: absolute;
+    height: 30px;
+    background-color: rgba(238,249,252,0.9);
+    color: transparent;
+    font-size: 0;
+    width: 1px;
+    left: 0;
+    bottom: 0;
+}
+.change_page a span{
+	display:block;
+	position:absolute;
+	left:0;
+	bottom:0;
+	width:100%;
+	height:30px;
+	z-index: -3;
+	box-shadow: inset 0px 0px 16px -2px rgba(0,0,0,0.5);
+	-webkit-box-shadow: inset 0px 0px 16px -2px rgba(0,0,0,0.5);
+	-moz-box-shadow: inset 0px 0px 16px -2px rgba(0,0,0,0.5);
+	-o-box-shadow: inset 0px 0px 16px -2px rgba(0,0,0,0.5);
+}
+.change_page a.selected span{
+	display:block;
+	position:absolute;
+	left:0;
+	bottom:0;
+	width:100%;
+	height:30px;
+	z-index: -3;
+	background-color:#479c33;
+}
+div#show_result {
+    margin-top: 69px;
+    padding: 0 7px 67px 7px;
+}
+</style>	
+</head>
+<body onload="init();" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" id="body">
+	<div class="container " id="container" >
+			<div id="ajax" class="mypreload">
+				<div style="z-index: 1000; border: medium none; margin: 0px; padding: 0px; width: 100%; height: 100%; top: 0px; left: 0px; background-color: #322958; opacity: 1; cursor: default; position: fixed;overflow:visible;" class="blockUI blockOverlay"></div>
+				<div style="z-index: 1011; position: fixed; padding: 0px; margin: 0px; width: 100%; top: 28%; left: 0%; text-align: center;border: medium none;overflow:visible;" class="blockUI blockMsg blockPage"><img src="images/preloader.gif"></div>
+				<div style="z-index: 1012; position: fixed; padding: 0px; margin: 0px; width: 100%; top: 50%; left: 0%; text-align: center;border: medium none;overflow:visible;height:500px;" class="blockUI blockMsg blockPage"><img src="images/loading.png" width="70%"></div>
+			</div>
+			<a class="reload_btn" href="khoruj.html"><img src="images/reload.svg" /></a>
+			<a class="amar_btn" href="amar.html"><img src="images/analytics-icon.svg" /></a>
+			<div class="besmelah" >بسم الله الرحمن الرحیم</div>
+			<div class="change_page" >
+				<a href="vorud.html" class="change_page_vorud "><span></span>ورود</a>
+				<a href="index.html" class="change_page_baresi "><span></span>بررسی</a>
+				<a href="khoruj.html" class="change_page_khoruj selected"><span></span>خروج</a>
+			</div>
+			<div class="start_scan bottom_fix" onclick="StartScan();">اســکن جدیــد</div>
+			<a class="manual_data bottom_fix" href="#" onclick="keyboard();" ><img src="images/keyboard.svg" /></a>
+			<div id="show_result">
+				<div class="panel bg-info">
+					<div class="panel-heading">
+						<h6 class="panel-title">منتظر اولین اسکن</h6>
+					</div>
+					<div class="panel-body text-center">...</div>
+				</div>
+			</div>
+	</div>
+</body>
+</html>
