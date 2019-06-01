@@ -28,6 +28,10 @@
 		}
 		if(window.localStorage.getItem('gender') == null)
 			window.localStorage.setItem('gender',"0");
+		if(window.localStorage.getItem('URL') == null)
+			window.localStorage.setItem('URL',"http://vadieh.net/registration/mobile-app/");
+		if(window.localStorage.getItem('URL_image') == null)
+			window.localStorage.setItem('URL_image',"http://vadieh.net/registration/");
 
 
 
@@ -64,10 +68,6 @@
 				document.addEventListener("backbutton", go_back_index, false);
 			}
 			
-			if(window.localStorage.getItem('URL') == null)
-				window.localStorage.setItem('URL',"http://vadieh.net/registration/mobile-app/");
-			if(window.localStorage.getItem('URL_image') == null)
-				window.localStorage.setItem('URL_image',"http://vadieh.net/registration/");
 
 		}
 

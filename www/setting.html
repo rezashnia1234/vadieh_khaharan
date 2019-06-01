@@ -43,6 +43,13 @@
 			$("input[name=URL]").val(window.localStorage.getItem('URL'));
 			$("input[name=URL_image]").val(window.localStorage.getItem('URL_image'));
 		}
+		function save_local() {
+			window.localStorage.setItem('URL',$("input[name=URL]").val());
+			window.localStorage.setItem('URL_image',$("input[name=URL_image]").val());
+			
+			$("input[name=URL]").val(window.localStorage.getItem('URL'));
+			$("input[name=URL_image]").val(window.localStorage.getItem('URL_image'));
+		}
 		function onDeviceReady() {
 			var networkState = navigator.connection.type;
 			//UserAgent.set("A786-110-A");
@@ -267,6 +274,9 @@ li {
 				<br/>
 				<br/>
 				<button name="" onclick="set_internet();" style="width:100%;padding:0 5px;">سرور اینترنتی</button>
+				<br/>
+				<br/>
+				<button name="" onclick="save_local();" style="width:100%;padding:0 5px;">ذخیره لوکال</button>
 			</div>
 	</div>
 </body>
